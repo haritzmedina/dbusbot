@@ -1,0 +1,15 @@
+{
+  "name": "dbusbot",
+  "version": "0.0.0",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "cheerio": "latest",
+    "http": "latest",
+    "querystring": "latest",
+    "telegraf": "^3.6.4"
+  }
+}
