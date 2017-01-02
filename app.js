@@ -11,7 +11,6 @@ app.command('start', (ctx) => {
 });
 
 app.hears('hi', (ctx) => ctx.reply('Hey there!'));
-app.on('sticker', (ctx) => ctx.reply('👍'));
 
 app.hears('dbus', (ctx)=>{
     request.post('http://www.dbus.eus/wp-admin/admin-ajax.php',{

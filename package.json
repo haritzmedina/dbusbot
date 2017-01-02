@@ -8,8 +8,12 @@
   },
   "dependencies": {
     "cheerio": "latest",
-    "http": "latest",
+    "request": "latest",
     "querystring": "latest",
     "telegraf": "^3.6.4"
+  },
+  "engines": {
+    "node": "6.9.2"
   }
+
 }
