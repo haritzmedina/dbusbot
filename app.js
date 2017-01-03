@@ -15,14 +15,22 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 });
 
 // Create chat bot
-var connector = new builder.ChatConnector({
+let connector = new builder.ChatConnector({
     appId: 'aaf64664-3085-42a5-ae07-617720884399',
     appPassword: 'mtdotVRj9CyeQdUhKvD78xS'
 });
-var bot = new builder.UniversalBot(connector);
+let bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
 
-var securityString = '';
+let securityString = '';
+
+let exampleStops = {
+    '347 | Pio XII': {id: '3141'},
+    '311 | Unibertsitatea T.70 II': {id: '2299'},
+    '44 | Unibertsitatea Tol.77': {id: '3082'},
+    '349 | Unibertsitatea Tol.95': {id: '3144'},
+    '193 | Estaciones Renfe-Bus Geltokiak': {id: '2826'}
+};
 
 //=========================================================
 // Bots Dialogs
@@ -30,28 +38,28 @@ var securityString = '';
 
 bot.dialog('/', new builder.IntentDialog()
     .matches(/^parada/i, '/parada')
+    .matches(/^fav/i, '/addToFavorite')
+    .matches(/^deleteUserData/i, '/deleteUserData')
     .onDefault(builder.DialogAction.send("Para saber los horarios de una parada, di 'parada'"))
 );
 
-bot.dialog('/profile', [
-    function (session) {
-        builder.Prompts.text(session, 'Hi! What is your name?');
-    },
-    function (session, results) {
-        session.userData.name = results.response;
-        session.endDialog();
-    }
-]);
-
 bot.dialog('/parada', [
     function(session){
-        builder.Prompts.text(session, 'Que parada quieres? Ejemplo.:\n\n' +
-            '3141 - Pio XII\n\n' +
-            '2299 - Unibertsitatea Tol.77\n\n' +
-            '3082 - Unibertsitatea T.70 II');
+        let stops = session.userData.favs || [];
+        let stopsObject = {};
+        if(stops.length>0){
+            for(let i=0;i<stops.length;i++){
+                stopsObject = stops;
+            }
+        }
+        else{
+            stopsObject = exampleStops;
+        }
+        builder.Prompts.choice(session, "Que parada quieres?", stopsObject);
     },
     function (session, results) {
-        let parada = results.response;
+        let parada = exampleStops[results.response.entity].id;
+        session.send('Revisando el estado en tiempo real. Espera...');
         console.log('Asking for parada: '+parada);
         requestArrivals(parada, (llegadas)=>{
             if(llegadas.length===0){
@@ -67,6 +75,27 @@ bot.dialog('/parada', [
     }
 ]);
 
+bot.dialog('/addToFavorite', [
+    (session) => {
+        builder.Prompts.text(session, 'Qué parada quieres añadir a favoritos?');
+    },
+    (session, results) =>{
+        //let favs = session.userData.favs || [];
+        favs.push(results.response);
+        session.userData.favs = favs;
+        session.endDialog();
+    }
+]);
+
+bot.dialog('/deleteUserData', [
+    (session) => {
+        session.userData.favs = [];
+        session.send('User data removed');
+        session.endDialog();
+    }
+]);
+
+
 function requestArrivals(parada, callback){
     request.post('http://www.dbus.eus/wp-admin/admin-ajax.php',{
         form: querystring.stringify({action: 'calcula_parada', parada: parada, security: securityString})
@@ -76,13 +105,15 @@ function requestArrivals(parada, callback){
                 requestArrivals(parada, callback);
             });
         }
-        let $ = cheerio.load(html);
-        let proximasLlegadas = $('#prox_lle').find('li');
-        let llegadas = [];
-        for(let i=0;i<proximasLlegadas.length;i++){
-            llegadas.push(proximasLlegadas[i].firstChild.data)
+        else{
+            let $ = cheerio.load(html);
+            let proximasLlegadas = $('#prox_lle').find('li');
+            let llegadas = [];
+            for(let i=0;i<proximasLlegadas.length;i++){
+                llegadas.push(proximasLlegadas[i].firstChild.data)
+            }
+            callback(llegadas);
         }
-        callback(llegadas);
     });
 }
 
