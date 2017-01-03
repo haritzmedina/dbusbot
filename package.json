@@ -2,18 +2,20 @@
   "name": "dbusbot",
   "version": "0.0.0",
   "private": true,
-  "main": "app.js",
+  "main": "msapp.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node msapp.js",
+    "deploy": "gcloud app deploy  --project dbusbot-test"
   },
   "dependencies": {
+    "botbuilder": "^3.4.4",
     "cheerio": "latest",
-    "request": "latest",
     "querystring": "latest",
+    "request": "latest",
+    "restify": "^4.3.0",
     "telegraf": "^3.6.4"
   },
   "engines": {
     "node": "6.9.2"
   }
-
 }

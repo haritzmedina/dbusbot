@@ -1,13 +1,49 @@
 {
   "lineas": [
-    {
-      "numero": "5",
-      "nombre": "Benta Berri",
-      "id": 1
-    },
-    {
-      "8": "Gros-Intxaurrondo"
-    }
+    { "num": "5", "id":"1", "enlace":"http://www.dbus.eus/05-benta-berri/", "name":"05 | Benta Berri"},
+    { "num": "8","id":"7", "enlace":"http://www.dbus.eus/08-gros-intxaurrondo/", "name":"08 | Gros-Intxaurrondo"},
+    { "num": "9","id":"18", "enlace":"http://www.dbus.eus/09-egia-intxaurrondo/", "name":"09 | Egia-Intxaurrondo"},
+    { "num": "13","id":"19", "enlace":"http://www.dbus.eus/13-altza/", "name":"13 | Altza"},
+    { "num": "14","id":"20", "enlace":"http://www.dbus.eus/14-bidebieta/", "name":"14 | Bidebieta"},
+    { "num": "16","id":"10", "enlace":"http://www.dbus.eus/16-igeldo/", "name":"16 | Igeldo"},
+    { "num": "17","id":"22", "enlace":"http://www.dbus.eus/17-gros-amara-miramon/", "name":"17 | Gros-Amara-Miramon"},
+    { "num": "18","id":"11", "enlace":"http://www.dbus.eus/18-seminarioa/", "name":"18 | Seminarioa"},
+    { "num": "19","id":"12", "enlace":"http://www.dbus.eus/19-aiete-bera-bera/", "name":"19 | Aiete-Bera Bera"},
+    { "num": "21","id":"13", "enlace":"http://www.dbus.eus/21-mutualidades-anoeta/", "name":"21 | Mutualidades-Anoeta"},
+    { "num": "23","id":"14", "enlace":"http://www.dbus.eus/23-errondo-puio/", "name":"23 | Errondo-Puio"},
+    { "num": "24","id":"23", "enlace":"http://www.dbus.eus/24-altza-gros-antiguo-intxaurrondo/", "name":"24 | Altza-Gros-Antiguo-Intxaurrondo"},
+    { "num": "25","id":"2", "enlace":"http://www.dbus.eus/25-bentaberri-anorga/", "name":"25 | BentaBerri-Añorga"},
+    { "num": "26","id":"15", "enlace":"http://www.dbus.eus/26-amara-martutene/", "name":"26 | Amara-Martutene"},
+    { "num": "27","id":"24", "enlace":"http://www.dbus.eus/27-altza-intxaurrondo-antiguo-gros/", "name":"27 | Altza-Intxaurrondo-Antiguo-Gros"},
+    { "num": "28","id":"16", "enlace":"http://www.dbus.eus/28-amara-ospitaleak/", "name":"28 | Amara-Ospitaleak"},
+    { "num": "29","id":"21", "enlace":"http://www.dbus.eus/29-intxaurrondo-sur/", "name":"29 | Intxaurrondo Sur"},
+    { "num": "31","id":"25", "enlace":"http://www.dbus.eus/31-intxaurrondo-ospitaleak-altza/", "name":"31 | Intxaurrondo-Ospitaleak-Altza"},
+    { "num": "32","id":"17", "enlace":"http://www.dbus.eus/32-puio-errondo/", "name":"32 | Puio-Errondo"},
+    { "num": "33","id":"26", "enlace":"http://www.dbus.eus/33-larratxo-intxaur-antiguo-berio/", "name":"33 | Larratxo-Intxaur-Antiguo-Berio"},
+    { "num": "35","id":"27", "enlace":"http://www.dbus.eus/35-arriola-antiguo-aiete-ospitaleak/", "name":"35 | Arriola-Antiguo-Aiete-Ospitaleak"},
+    { "num": "36","id":"30", "enlace":"http://www.dbus.eus/36-sanroque-aldakonea/", "name":"36 | SanRoque-Aldakonea"},
+    { "num": "37","id":"39", "enlace":"http://www.dbus.eus/37-rodil-zorroaga/", "name":"37 | Rodil-Zorroaga"},
+    { "num": "38","id":"40", "enlace":"http://www.dbus.eus/38-trintxerpe-altza-molinao/", "name":"38 | Trintxerpe-Altza-Molinao"},
+    { "num": "39","id":"41", "enlace":"http://www.dbus.eus/39-urgull/", "name":"39 | Urgull"},
+    { "num": "40","id":"28", "enlace":"http://www.dbus.eus/40-gros-antiguo-igara/", "name":"40 | Gros-Antiguo-Igara"},
+    { "num": "41","id":"29", "enlace":"http://www.dbus.eus/41-gros-egia-martutene/", "name":"41 | Gros-Egia-Martutene"},
+    { "num": "42","id":"54", "enlace":"http://www.dbus.eus/42-aldapa-egia/", "name":"42 | Aldapa-Egia"},
+    { "num": "43","id":"43", "enlace":"http://www.dbus.eus/43-anoeta-igara/", "name":"43 | Anoeta-Igara"},
+    { "num": "45","id":"56", "enlace":"http://www.dbus.eus/45-estaciones-renfe-bus-geltokiak-antiguo-aiete/", "name":"45 | Estaciones Renfe-Bus Geltokiak-Antiguo-Aiete"},
+    { "num": "B1","id":"31", "enlace":"http://www.dbus.eus/b1-benta-berri-berio-anorga/", "name":"B1 | Benta Berri-Berio-Añorga"},
+    { "num": "B2","id":"32", "enlace":"http://www.dbus.eus/b2-aiete-bera-bera/", "name":"B2 | Aiete-Bera Bera"},
+    { "num": "B3","id":"33", "enlace":"http://www.dbus.eus/b3-egia-intxaurrondo/", "name":"B3 | Egia-Intxaurrondo"},
+    { "num": "B4","id":"34", "enlace":"http://www.dbus.eus/b4-amara-riberas-martutene/", "name":"B4 | Amara-Riberas-Martutene"},
+    { "num": "B6","id":"35", "enlace":"http://www.dbus.eus/b6-altza/", "name":"B6 | Altza"},
+    { "num": "B7","id":"36", "enlace":"http://www.dbus.eus/b7-igeldo/", "name":"B7 | Igeldo"},
+    { "num": "B8","id":"37", "enlace":"http://www.dbus.eus/b8-miraconcha-bentaberri-seminario/", "name":"B8 | Miraconcha-BentaBerri-Seminario"},
+    { "num": "B9","id":"38", "enlace":"http://www.dbus.eus/b9-amara-errondo-puio/", "name":"B9 | Amara-Errondo-Puio"},
+    { "num": "B10","id":"42", "enlace":"http://www.dbus.eus/b10-zubiaurre-bidebieta-buenavista/", "name":"B10 | Zubiaurre-Bidebieta-Buenavista"},
+    { "id":"52", "enlace":"http://www.dbus.eus/pre-buhos-2/", "name":"Gautxorien aurreko zerbitzuak"},
+    { "id":"44", "enlace":"http://www.dbus.eus/zerbitzu-berezia-unibertsitateraino/", "name":"Zerbitzu berezia Unibertsitateraino"},
+    { "id":"47", "enlace":"http://www.dbus.eus/tb6-taxibus-ulia/", "name":"TB6 | Ulia Taxibusa"},
+    { "id":"48", "enlace":"http://www.dbus.eus/descargas/futbol-basket/servicios-especiales-anoeta-futbol_eu.pdf", "name":"Zerbitzu berezia Anoetara (Futbola)"},
+    { "id":"51", "enlace":"http://www.dbus.eus/descargas/transbordos.pdf ", "name":"Linea aldaketen taula"}
   ],
   "paradas": [
 

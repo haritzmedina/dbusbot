@@ -12,7 +12,8 @@ app.command('start', (ctx) => {
 
 app.hears('hi', (ctx) => ctx.reply('Hey there!'));
 
-app.hears('dbus', (ctx)=>{
+app.hears('dbus*', (ctx)=>{
+    console.log('aa');
     request.post('http://www.dbus.eus/wp-admin/admin-ajax.php',{
         form: querystring.stringify({action: 'calcula_parada', parada: '2299', security: 'd5652d88d4'})
     }, function(error, response, html){
