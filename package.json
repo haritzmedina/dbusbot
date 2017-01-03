@@ -2,10 +2,10 @@
   "name": "dbusbot",
   "version": "0.0.0",
   "private": true,
-  "main": "msapp.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node msapp.js",
-    "deploy": "gcloud app deploy  --project dbusbot-test"
+    "start": "node app.js",
+    "deploy": "gcloud app deploy --project haritzmedina-dbusbot"
   },
   "dependencies": {
     "botbuilder": "^3.4.4",
