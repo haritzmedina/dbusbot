@@ -1,8 +1,10 @@
-var restify = require('restify');
-var builder = require('botbuilder');
+const restify = require('restify');
+const builder = require('botbuilder');
 const request = require('request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
+const parseString = require('xml2js').parseString;
+
 
 //=========================================================
 // Bot Setup
@@ -24,13 +26,33 @@ server.post('/api/messages', connector.listen());
 
 let securityString = '';
 
-let exampleStops = {
-    '347 | Pio XII': {id: '3141'},
-    '311 | Unibertsitatea T.70 II': {id: '2299'},
-    '44 | Unibertsitatea Tol.77': {id: '3082'},
-    '349 | Unibertsitatea Tol.95': {id: '3144'},
-    '193 | Estaciones Renfe-Bus Geltokiak': {id: '2826'}
-};
+let exampleStops = [
+    {
+        parada: {id: '3141', name: '347 | Pio XII'},
+        linea: {num: '24-27'}
+    },{
+        parada: {id: '2299', name: '44 | Unibertsitatea Tol.77'},
+        linea: {num: '5'}
+    },{
+        parada: {id: '3082', name: '311 | Unibertsitatea T.70 II'},
+        linea: {num: '24-27'}
+    },{
+        parada: {id: '3141', name: '349 | Unibertsitatea Tol.95'},
+        linea: {num: '24'}
+    },{
+        parada: {id: '2826', name: '193 | Estaciones Renfe-Bus Geltokiak'},
+        linea: {num: '45'}
+    },
+];
+
+//==================================
+// Carga de links de lineas
+//==================================
+let fs = require("fs");
+let content = fs.readFileSync("datos.json");
+
+let jsoncontent = JSON.parse(content);
+let lineas = jsoncontent.lineas;
 
 //=========================================================
 // Bots Dialogs
@@ -40,28 +62,52 @@ bot.dialog('/', new builder.IntentDialog()
     .matches(/^parada/i, '/parada')
     .matches(/^fav/i, '/addToFavorite')
     .matches(/^deleteUserData/i, '/deleteUserData')
-    .onDefault(builder.DialogAction.send("Para saber los horarios de una parada, di 'parada'"))
+    .onDefault(builder.DialogAction.beginDialog('/main'))
 );
+
+function mainMessage(session){
+    builder.Prompts.choice(session, "Qué deseas hacer?", 'Parada|Favorito|DeleteUserData');
+    session.endDialog();
+}
+
+bot.dialog('/main', [
+    (session)=>{
+    mainMessage(session);
+    }
+]);
 
 bot.dialog('/parada', [
     function(session){
-        let stops = session.userData.favs || [];
+        let stops = session.userData.favs;
+        if(stops.length===0){
+            stops = exampleStops;
+        }
         let stopsObject = {};
         if(stops.length>0){
             for(let i=0;i<stops.length;i++){
-                stopsObject = stops;
+                let stop = stops[i];
+                stopsObject[stop.parada.name+' [L'+stop.linea.num+']'] = '';
             }
+            builder.Prompts.choice(session, "Que parada quieres?", stopsObject);
         }
-        else{
-            stopsObject = exampleStops;
-        }
-        builder.Prompts.choice(session, "Que parada quieres?", stopsObject);
     },
     function (session, results) {
-        let parada = exampleStops[results.response.entity].id;
+        let stops = session.userData.favs;
+        if(stops.length===0){
+            stops = exampleStops;
+        }
+        let parada = {};
+        console.log(results.response.entity);
+        for(let i=0;i<stops.length;i++){
+            let stop = stops[i];
+            let userStopString = stop.parada.name+' [L'+stop.linea.num+']';
+            if(userStopString===results.response.entity){
+                parada = stop;
+            }
+        }
         session.send('Revisando el estado en tiempo real. Espera...');
-        console.log('Asking for parada: '+parada);
-        requestArrivals(parada, (llegadas)=>{
+        console.log(parada);
+        requestArrivals(parada.parada.id, (llegadas)=>{
             if(llegadas.length===0){
                 session.send('No hay informacion o la parada no existe');
             }
@@ -70,31 +116,94 @@ bot.dialog('/parada', [
                     session.send(llegadas[i]);
                 }
             }
-            session.endDialog();
+            mainMessage(session);
         });
     }
 ]);
 
-bot.dialog('/addToFavorite', [
-    (session) => {
-        builder.Prompts.text(session, 'Qué parada quieres añadir a favoritos?');
-    },
-    (session, results) =>{
-        //let favs = session.userData.favs || [];
-        favs.push(results.response);
+bot.dialog('/addToFavorite', retrieveBusStopByUserInput([
+    function (session, results){
+        session.send('Añadido: '+results.parada.name+' [L'+results.linea.num+']');
+        let favs = session.userData.favs || [];
+        favs.push(results);
         session.userData.favs = favs;
-        session.endDialog();
+        mainMessage(session);
     }
-]);
+]));
 
 bot.dialog('/deleteUserData', [
     (session) => {
         session.userData.favs = [];
         session.send('User data removed');
-        session.endDialog();
+        mainMessage(session);
     }
 ]);
 
+function retrieveBusStopByUserInput(callbackWaterfall){
+    let userInput = {};
+    let metadata = {};
+    let waterfall = [
+        (session) => {
+            let choiceMessage = {};
+            for(let i=0;i<lineas.length;i++){
+                choiceMessage[lineas[i].num] = lineas[i].num;
+            }
+            builder.Prompts.choice(session, 'A qué linea pertenece la parada?', choiceMessage);
+        },
+        (session, results) => {
+            console.log(results.response);
+            let linea = findLineaData(results.response.entity);
+            if(!linea){
+                session.send('No existe esa linea');
+                session.endDialog();
+            }
+            else{
+                userInput.linea = linea;
+                requestStops(linea, (paradas)=>{
+                    let choiceMessage = {};
+                    for(let i=0;i<paradas.length;i++){
+                        choiceMessage[paradas[i].name] = paradas[i].id;
+                    }
+                    metadata.paradas = choiceMessage;
+                    //console.log(metadata.paradas);
+                    builder.Prompts.choice(session, 'Qué parada quieres añadir a favoritos?', choiceMessage);
+                });
+            }
+        },
+        (session, results, next) => {
+            console.log(metadata.paradas);
+            userInput.parada = {};
+            userInput.parada.id = metadata.paradas[results.response.entity];
+            userInput.parada.name = results.response.entity;
+            console.log(userInput.parada);
+            next(userInput);
+        }
+    ];
+    waterfall = waterfall.concat(callbackWaterfall);
+    return waterfall;
+}
+
+function findLineaData(lineaNum){
+    for(let i=0;i<lineas.length;i++){
+        if(lineas[i].num === lineaNum){
+            return lineas[i];
+        }
+    }
+}
+
+function requestStops(linea, callback){
+    request.get(linea.enlace, {}, function(error, response, xml){
+        parseString(xml, (err, result)=>{
+            let paradaInfo = result.markers.marker;
+            let paradas = [];
+            for(let i=0;i<paradaInfo.length;i++){
+                let currentStop = paradaInfo[i];
+                paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], linea: linea.num});
+            }
+            callback(paradas);
+        });
+    });
+}
 
 function requestArrivals(parada, callback){
     request.post('http://www.dbus.eus/wp-admin/admin-ajax.php',{
