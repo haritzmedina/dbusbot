@@ -22,6 +22,7 @@ let connector = new builder.ChatConnector({
     appPassword: 'mtdotVRj9CyeQdUhKvD78xS'
 });
 let bot = new builder.UniversalBot(connector);
+let recognizer = new builder.LuisRecognizer('https://api.projectoxford.ai/luis/v2.0/apps/48788b58-0884-4398-97ef-1d2626ef74ab?subscription-key=d8625b06b3b948a8bacfcaa904116d4b&verbose=true');
 server.post('/api/messages', connector.listen());
 
 let securityString = '';
@@ -58,15 +59,22 @@ let lineas = jsoncontent.lineas;
 // Bots Dialogs
 //=========================================================
 
-bot.dialog('/', new builder.IntentDialog()
+var intents = new builder.IntentDialog({ recognizers: [recognizer] });
+bot.dialog('/', intents);
+intents.matches('tiemposParada', '/parada');
+intents.matches('addStopFavorite', '/addStopFavorite');
+intents.matches('deleteFavorites', '/deleteUserData');
+intents.onDefault(builder.DialogAction.beginDialog('/main'));
+
+/*bot.dialog('/', new builder.IntentDialog()
     .matches(/^parada/i, '/parada')
     .matches(/^fav/i, '/addToFavorite')
     .matches(/^deleteUserData/i, '/deleteUserData')
     .onDefault(builder.DialogAction.beginDialog('/main'))
-);
+);*/
 
 function mainMessage(session){
-    builder.Prompts.choice(session, "Qué deseas hacer?", 'Parada|Favorito|DeleteUserData');
+    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir favorito|Eliminar favoritos');
     session.endDialog();
 }
 
@@ -97,7 +105,6 @@ bot.dialog('/parada', [
             stops = exampleStops;
         }
         let parada = {};
-        console.log(results.response.entity);
         for(let i=0;i<stops.length;i++){
             let stop = stops[i];
             let userStopString = stop.parada.name+' [L'+stop.linea.num+']';
@@ -106,7 +113,6 @@ bot.dialog('/parada', [
             }
         }
         session.send('Revisando el estado en tiempo real. Espera...');
-        console.log(parada);
         requestArrivals(parada.parada.id, (llegadas)=>{
             if(llegadas.length===0){
                 session.send('No hay informacion o la parada no existe');
@@ -121,7 +127,7 @@ bot.dialog('/parada', [
     }
 ]);
 
-bot.dialog('/addToFavorite', retrieveBusStopByUserInput([
+bot.dialog('/addStopFavorite', retrieveBusStopByUserInput([
     function (session, results){
         session.send('Añadido: '+results.parada.name+' [L'+results.linea.num+']');
         let favs = session.userData.favs || [];
@@ -133,8 +139,16 @@ bot.dialog('/addToFavorite', retrieveBusStopByUserInput([
 
 bot.dialog('/deleteUserData', [
     (session) => {
-        session.userData.favs = [];
-        session.send('User data removed');
+        builder.Prompts.confirm(session, "Estás seguro que quieres eliminar tus favoritos?");
+    },
+    (session, result) => {
+        if(result.response){
+            session.userData.favs = [];
+            session.send('Tus favoritos se han eliminado');
+        }
+        else{
+            session.send('No se ha eliminado nada');
+        }
         mainMessage(session);
     }
 ]);
@@ -151,7 +165,6 @@ function retrieveBusStopByUserInput(callbackWaterfall){
             builder.Prompts.choice(session, 'A qué linea pertenece la parada?', choiceMessage);
         },
         (session, results) => {
-            console.log(results.response);
             let linea = findLineaData(results.response.entity);
             if(!linea){
                 session.send('No existe esa linea');
@@ -165,17 +178,14 @@ function retrieveBusStopByUserInput(callbackWaterfall){
                         choiceMessage[paradas[i].name] = paradas[i].id;
                     }
                     metadata.paradas = choiceMessage;
-                    //console.log(metadata.paradas);
                     builder.Prompts.choice(session, 'Qué parada quieres añadir a favoritos?', choiceMessage);
                 });
             }
         },
         (session, results, next) => {
-            console.log(metadata.paradas);
             userInput.parada = {};
             userInput.parada.id = metadata.paradas[results.response.entity];
             userInput.parada.name = results.response.entity;
-            console.log(userInput.parada);
             next(userInput);
         }
     ];
