@@ -11,7 +11,7 @@ const parseString = require('xml2js').parseString;
 //=========================================================
 
 // Setup Restify Server
-var server = restify.createServer();
+let server = restify.createServer({});
 server.listen(process.env.port || process.env.PORT || 3978, function () {
     console.log('%s listening to %s', server.name, server.url);
 });
@@ -36,9 +36,9 @@ let exampleStops = [
         linea: {num: '5'}
     },{
         parada: {id: '3082', name: '311 | Unibertsitatea T.70 II'},
-        linea: {num: '24-27'}
+        linea: {num: '27'}
     },{
-        parada: {id: '3141', name: '349 | Unibertsitatea Tol.95'},
+        parada: {id: '3144', name: '349 | Unibertsitatea Tol.95'},
         linea: {num: '24'}
     },{
         parada: {id: '2826', name: '193 | Estaciones Renfe-Bus Geltokiak'},
@@ -59,28 +59,37 @@ let lineas = jsoncontent.lineas;
 // Bots Dialogs
 //=========================================================
 
-var intents = new builder.IntentDialog({ recognizers: [recognizer] });
+let intents = new builder.IntentDialog({ recognizers: [recognizer] });
 bot.dialog('/', intents);
 intents.matches('tiemposParada', '/parada');
 intents.matches('addStopFavorite', '/addStopFavorite');
-intents.matches('deleteFavorites', '/deleteUserData');
+intents.matches('deleteFavorites', '/deletefav');
 intents.onDefault(builder.DialogAction.beginDialog('/main'));
 
-/*bot.dialog('/', new builder.IntentDialog()
-    .matches(/^parada/i, '/parada')
-    .matches(/^fav/i, '/addToFavorite')
-    .matches(/^deleteUserData/i, '/deleteUserData')
-    .onDefault(builder.DialogAction.beginDialog('/main'))
-);*/
-
 function mainMessage(session){
-    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir favorito|Eliminar favoritos');
+    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir favorito|Eliminar favorito');
     session.endDialog();
+}
+
+function initialMessage(session){
+    session.send('Este es un chatbot para obtener los tiempos de llegada en tiempo real de los autobuses de la Compañia de Tranvía de San Sebastián (DBus).');
+    session.send('Permite definir tus paradas favoritas, consultarlas y eliminarlas. Aun es un pequeño prototipo, por lo que puede fallar.');
+    session.send('Este chatbot no está relacionado ni desarrollado por dbus. Desde aquí os recomendamos que para obtener una información más precisa podéis acudir al sitio web o a la aplicación oficial de dbus.');
+    session.send('http://dbus.es');
+    session.send('http://www.dbus.eus/es/usuarios/aplicaciones-dbus/');
+    session.send('Para empezar están definidas como favoritas algunas de las paradas más utilizadas para moverse desde la universidad a la estación de autobus y tren, pero puedes definir las tuyas propias.');
+    session.userData.initialized = true;
+    mainMessage(session);
 }
 
 bot.dialog('/main', [
     (session)=>{
-    mainMessage(session);
+        if(session.userData.initialized){
+            mainMessage(session);
+        }
+        else{
+            initialMessage(session);
+        }
     }
 ]);
 
@@ -99,7 +108,7 @@ bot.dialog('/parada', [
             builder.Prompts.choice(session, "Que parada quieres?", stopsObject);
         }
     },
-    function (session, results) {
+    (session, results) => {
         let stops = session.userData.favs;
         if(stops.length===0){
             stops = exampleStops;
@@ -137,6 +146,46 @@ bot.dialog('/addStopFavorite', retrieveBusStopByUserInput([
     }
 ]));
 
+bot.dialog('/deletefav', [
+    (session) => {
+        let stops = session.userData.favs;
+        if(stops.length===0){
+            session.send('No hay paradas favoritas');
+            mainMessage(session);
+            session.cancelDialog();
+        }
+        else{
+            let stopsObject = {};
+            if(stops.length>0){
+                for(let i=0;i<stops.length;i++){
+                    let stop = stops[i];
+                    stopsObject[stop.parada.name+' [L'+stop.linea.num+']'] = '';
+                }
+                builder.Prompts.choice(session, "Que parada quieres eliminar?", stopsObject);
+            }
+        }
+    },
+    (session, results) => {
+        let stops = session.userData.favs;
+        let index = -1;
+        for(let i=0;i<stops.length;i++){
+            let stop = stops[i];
+            let userStopString = stop.parada.name+' [L'+stop.linea.num+']';
+            if(userStopString===results.response.entity){
+                index = i;
+            }
+        }
+        if(index!==-1){
+            session.send('Se ha eliminado '+results.response.entity+' de favoritos.');
+            stops.splice(index, 1);
+            mainMessage(session);
+        }
+        else{
+            session.send('An error has been occurred');
+        }
+    }
+]);
+
 bot.dialog('/deleteUserData', [
     (session) => {
         builder.Prompts.confirm(session, "Estás seguro que quieres eliminar tus favoritos?");
@@ -154,10 +203,12 @@ bot.dialog('/deleteUserData', [
 ]);
 
 function retrieveBusStopByUserInput(callbackWaterfall){
-    let userInput = {};
-    let metadata = {};
+    let userInput;
+    let metadata;
     let waterfall = [
         (session) => {
+            userInput = {};
+            metadata = {};
             let choiceMessage = {};
             for(let i=0;i<lineas.length;i++){
                 choiceMessage[lineas[i].num] = lineas[i].num;
