@@ -67,7 +67,7 @@ intents.matches('deleteFavorites', '/deletefav');
 intents.onDefault(builder.DialogAction.beginDialog('/main'));
 
 function mainMessage(session){
-    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir favorito|Eliminar favorito');
+    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir fav|Eliminar fav');
     session.endDialog();
 }
 
@@ -132,7 +132,8 @@ bot.dialog('/parada', [
                     session.send(llegadas[i]);
                 }
             }
-            mainMessage(session);
+            session.endDialog();
+            session.beginDialog('/main');
         });
     }
 ]);
@@ -143,17 +144,18 @@ bot.dialog('/addStopFavorite', retrieveBusStopByUserInput([
         let favs = session.userData.favs || [];
         favs.push(results);
         session.userData.favs = favs;
-        mainMessage(session);
+        session.endDialog();
+        session.beginDialog('/main');
     }
 ]));
 
 bot.dialog('/deletefav', [
     (session) => {
         let stops = session.userData.favs;
-        if(stops.length===0){
+        if(typeof stops === 'undefined' || stops.length===0){
             session.send('No hay paradas favoritas');
-            mainMessage(session);
-            session.cancelDialog();
+            session.endDialog();
+            session.beginDialog('/main');
         }
         else{
             let stopsObject = {};
@@ -182,7 +184,7 @@ bot.dialog('/deletefav', [
             mainMessage(session);
         }
         else{
-            session.send('An error has been occurred');
+            session.send('Hay ocurrido algun error');
         }
     }
 ]);
