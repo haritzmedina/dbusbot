@@ -96,7 +96,8 @@ bot.dialog('/main', [
 bot.dialog('/parada', [
     function(session){
         let stops = session.userData.favs;
-        if(stops || stops.length===0){
+        console.log(stops);
+        if(typeof stops === 'undefined' || stops.length===0){
             stops = exampleStops;
         }
         let stopsObject = {};
@@ -110,7 +111,7 @@ bot.dialog('/parada', [
     },
     (session, results) => {
         let stops = session.userData.favs;
-        if(stops.length===0){
+        if(typeof stops === 'undefined' || stops.length===0){
             stops = exampleStops;
         }
         let parada = {};
