@@ -93,3 +93,5 @@ crashlytics-build.properties
 fabric.properties
 
 test.js
+
+*.key

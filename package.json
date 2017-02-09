@@ -4,8 +4,7 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "deploy": "gcloud app deploy --project haritzmedina-dbusbot"
+    "start": "node app.js"
   },
   "dependencies": {
     "botbuilder": "^3.4.4",

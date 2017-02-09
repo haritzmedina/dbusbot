@@ -18,11 +18,11 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 
 // Create chat bot
 let connector = new builder.ChatConnector({
-    appId: 'aaf64664-3085-42a5-ae07-617720884399',
-    appPassword: 'mtdotVRj9CyeQdUhKvD78xS'
+    appId: process.env.APP_ID,
+    appPassword: process.env.APP_PASSWORD
 });
 let bot = new builder.UniversalBot(connector);
-let recognizer = new builder.LuisRecognizer('https://api.projectoxford.ai/luis/v2.0/apps/48788b58-0884-4398-97ef-1d2626ef74ab?subscription-key=d8625b06b3b948a8bacfcaa904116d4b&verbose=true');
+let recognizer = new builder.LuisRecognizer(process.env.APP_LUIS_URL);
 server.post('/api/messages', connector.listen());
 
 let securityString = '';
