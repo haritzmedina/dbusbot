@@ -4,7 +4,7 @@ const request = require('request');
 const cheerio = require('cheerio');
 const querystring = require('querystring');
 const parseString = require('xml2js').parseString;
-
+require('dotenv').config();
 
 //=========================================================
 // Bot Setup
