@@ -94,4 +94,4 @@ fabric.properties
 
 test.js
 
-*.env
+.env
