@@ -2,7 +2,7 @@ A prototype chatbot to retrieve time to arrive of a bus to a certain stop of the
 
 The data is scrapped in real time from the [dbus official website](http://dbus.eus). This chatbot is not related to DBus company.
 The bot is developed using [Microsoft Bot Framework](https://dev.botframework.com/).
-The application is deployed in Google AppEngine.
+The application is deployed in [Heroku](https://www.heroku.com/).
 
 You can use the bot in [Telegram](https://telegram.me/dbusbot). 
  
