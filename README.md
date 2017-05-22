@@ -4,7 +4,7 @@ The data is scrapped in real time from the [dbus official website](http://dbus.e
 The bot is developed using [Microsoft Bot Framework](https://dev.botframework.com/).
 The application is deployed in [Heroku](https://www.heroku.com/).
 
-You can use the bot in [Telegram](https://telegram.me/dbusbot). 
+You can use the bot in [Telegram](https://telegram.me/dbusbot), [Facebook](https://www.facebook.com/DbusBot-1886182904961201/) or [Slack](https://haritzmedina.slack.com/apps/A3TRRD8NB-dbusbot). 
  
 # Current features
 * Retrieve time to arrive of bus stops
