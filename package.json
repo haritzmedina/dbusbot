@@ -1,21 +1,21 @@
 {
   "name": "dbusbot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "botbuilder": "^3.4.4",
+    "botbuilder": "^3.8.4",
     "cheerio": "latest",
     "dotenv": "^4.0.0",
     "querystring": "latest",
     "request": "latest",
-    "restify": "^4.3.0",
+    "restify": "^5.0.0",
     "xml2js": "^0.4.17"
   },
   "engines": {
-    "node": "6.9.2"
+    "node": "8.1.3"
   }
 }
