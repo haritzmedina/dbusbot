@@ -64,10 +64,11 @@ bot.dialog('/', intents);
 intents.matches('tiemposParada', '/parada');
 intents.matches('addStopFavorite', '/addStopFavorite');
 intents.matches('deleteFavorites', '/deletefav');
+intents.matches('help', '/help');
 intents.onDefault(builder.DialogAction.beginDialog('/main'));
 
 function mainMessage(session){
-    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir fav|Eliminar fav');
+    builder.Prompts.choice(session, "Qué deseas hacer?", 'Ver tiempos de paradas|Añadir parada favorita|Eliminar parada favorita|Ayuda', {listStyle: builder.ListStyle.button});
     session.endDialog();
 }
 
@@ -82,6 +83,22 @@ function initialMessage(session){
     mainMessage(session);
 }
 
+function helpMessage(session){
+    let channelId = session.message.address.channelId;
+    if(channelId==='telegram'){
+        session.send('Cualquier duda o comentario puedes ponerte en contacto con el desarrollador en telegram @haritzmedina o en Github: https://github.com/haritzmedina/dbusbot/issues');
+    }
+    else if(channelId==='facebook'){
+        session.send('Cualquier duda o comentario puedes ponerte en contacto con el desarrollador en facebook https://www.facebook.com/DbusBot-1886182904961201/ o en Github: https://github.com/haritzmedina/dbusbot/issues');
+    }
+    else{
+        session.send('Cualquier duda o comentario puedes ponerte en contacto con el desarrollador en github: https://github.com/haritzmedina/dbusbot/issues')
+    }
+    session.send('El código fuente es de libre acceso, está disponible en https://github.com/haritzmedina/dbusbot');
+    session.endDialog();
+    session.beginDialog('/main');
+}
+
 bot.dialog('/main', [
     (session)=>{
         if(session.userData.initialized){
@@ -92,6 +109,10 @@ bot.dialog('/main', [
         }
     }
 ]);
+
+bot.dialog('/help', [(session)=>{
+    helpMessage(session);
+}]);
 
 bot.dialog('/parada', [
     function(session){
@@ -106,7 +127,7 @@ bot.dialog('/parada', [
                 let stop = stops[i];
                 stopsObject[stop.parada.name+' [L'+stop.linea.num+']'] = '';
             }
-            builder.Prompts.choice(session, "Que parada quieres?", stopsObject);
+            builder.Prompts.choice(session, "Que parada quieres?", stopsObject, {listStyle: builder.ListStyle.button});
         }
     },
     (session, results) => {
@@ -164,7 +185,7 @@ bot.dialog('/deletefav', [
                     let stop = stops[i];
                     stopsObject[stop.parada.name+' [L'+stop.linea.num+']'] = '';
                 }
-                builder.Prompts.choice(session, "Que parada quieres eliminar?", stopsObject);
+                builder.Prompts.choice(session, "Que parada quieres eliminar?", stopsObject, {listStyle: builder.ListStyle.button});
             }
         }
     },
@@ -216,7 +237,7 @@ function retrieveBusStopByUserInput(callbackWaterfall){
             for(let i=0;i<lineas.length;i++){
                 choiceMessage[lineas[i].num] = lineas[i].num;
             }
-            builder.Prompts.choice(session, 'A qué linea pertenece la parada?', choiceMessage);
+            builder.Prompts.choice(session, 'A qué linea pertenece la parada?', choiceMessage, {listStyle: builder.ListStyle.button});
         },
         (session, results) => {
             let linea = findLineaData(results.response.entity);
@@ -232,7 +253,7 @@ function retrieveBusStopByUserInput(callbackWaterfall){
                         choiceMessage[paradas[i].name] = paradas[i].id;
                     }
                     metadata.paradas = choiceMessage;
-                    builder.Prompts.choice(session, 'Qué parada quieres añadir a favoritos?', choiceMessage);
+                    builder.Prompts.choice(session, 'Qué parada quieres añadir a favoritos?', choiceMessage, {listStyle: builder.ListStyle.button});
                 });
             }
         },
