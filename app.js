@@ -92,7 +92,7 @@ function helpMessage(session){
         session.send('Cualquier duda o comentario puedes ponerte en contacto con el desarrollador en facebook https://www.facebook.com/DbusBot-1886182904961201/ o en Github: https://github.com/haritzmedina/dbusbot/issues');
     }
     else{
-        session.send('Cualquier duda o comentario puedes ponerte en contacto con el desarrollador en github: https://github.com/haritzmedina/dbusbot/issues')
+        session.send('Cualquier duda o comentario puedes ponerte en contacto con el desarrollador: https://github.com/haritzmedina/dbusbot/issues')
     }
     session.send('El código fuente es de libre acceso, está disponible en https://github.com/haritzmedina/dbusbot');
     session.endDialog();
@@ -291,7 +291,7 @@ function requestStops(linea, callback){
 }
 
 function requestArrivals(parada, callback){
-    request.post('http://www.dbus.eus/wp-admin/admin-ajax.php',{
+    request.post('https://www.dbus.eus/wp-admin/admin-ajax.php',{
         form: querystring.stringify({action: 'calcula_parada', parada: parada, security: securityString})
     }, function(error, response, html){
         if(response.body==='-1'){
@@ -312,7 +312,8 @@ function requestArrivals(parada, callback){
 }
 
 function updateSecurityString(callback){
-    request.get('http://www.dbus.eus/05-benta-berri/', {}, (error, response, html)=>{
+    request.get('https://www.dbus.eus/05-benta-berri/', {}, (error, response, html)=>{
+        debugger;
         let testRE = html.match("security: '(.*)'");
         securityString = testRE[1];
         console.log('Security string set: '+securityString);

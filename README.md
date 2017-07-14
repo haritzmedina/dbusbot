@@ -12,7 +12,6 @@ You can use the bot in [Telegram](https://telegram.me/dbusbot), [Facebook](https
 * Remove favorite stops.
  
 # Known issues
-* Unable to get information of line 37.
 * Slow response time to get real-time info from the website.
 
 # Contact
