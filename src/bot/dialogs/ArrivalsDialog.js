@@ -15,16 +15,23 @@ class ArrivalsDialog{
                 if(typeof stops === 'undefined' || stops.length===0){
                     stops = ExampleStops;
                 }
-                let stopsObject = {};
+                let stopsObject = [];
                 if(stops.length>0){
                     for(let i=0;i<stops.length;i++){
                         let stop = stops[i];
-                        stopsObject[stop.parada.name+' [L'+stop.linea.num+']'] = '';
+                        stopsObject.push(stop.parada.name+' [L'+stop.linea.num+']');
                     }
-                    builder.Prompts.choice(session, "Que parada quieres?", stopsObject, {listStyle: builder.ListStyle.button});
+                    const card = new builder.ThumbnailCard(session)
+                        .text('Qué parada quieres?')
+                        .buttons(stopsObject.map(choice => new builder.CardAction.imBack(session, choice, choice)));
+                    const message = new builder.Message(session)
+                        .addAttachment(card);
+                    builder.Prompts.text(session, message);
                 }
             },
             (session, results) => {
+                console.log('Has elegido ' + results.response);
+                // TODO If not in favs, search in all stops
                 let stops = session.userData.favs;
                 if(typeof stops === 'undefined' || stops.length===0){
                     stops = ExampleStops;
@@ -33,7 +40,7 @@ class ArrivalsDialog{
                 for(let i=0;i<stops.length;i++){
                     let stop = stops[i];
                     let userStopString = stop.parada.name+' [L'+stop.linea.num+']';
-                    if(userStopString===results.response.entity){
+                    if(userStopString===results.response){
                         parada = stop;
                     }
                 }

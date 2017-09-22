@@ -3,7 +3,7 @@ const parseString = require('xml2js').parseString;
 
 class Stops{
     constructor(){
-
+        
     }
 
     static requestStops(linea, callback){
