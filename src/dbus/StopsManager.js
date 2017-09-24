@@ -5,10 +5,11 @@ const parseString = require('xml2js').parseString;
 class StopsManager{
     constructor(){
         this.stops = {};
+        this.stopsArray = [];
         this.lines = [];
     }
 
-    init(){
+    init(callback){
         // Retrieve all the stops of dbus
         let content = fs.readFileSync("data.json");
         let jsoncontent = JSON.parse(content);
@@ -24,7 +25,12 @@ class StopsManager{
             }));
         });
         Promise.all(promises).then(()=>{
-            console.log(this.stops);
+            for(let key in this.stops){
+                if(this.stops[key]){
+                    this.stopsArray.push(this.stops[key]);
+                }
+            }
+            callback();
         });
     }
 
@@ -36,7 +42,7 @@ class StopsManager{
                     let paradaInfo = result.markers.marker;
                     for(let i=0;i<paradaInfo.length;i++){
                         let currentStop = paradaInfo[i];
-                        paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], lineas: [linea.num]});
+                        paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], lines: [linea.num]});
                     }
                 }
                 callback(paradas);
@@ -49,7 +55,7 @@ class StopsManager{
             stops.forEach((stop)=>{
                 // If the stop is currently added, only add line number
                 if(this.stops[stop.id]){
-                    this.stops[stop.id].lineas = this.stops[stop.id].lineas.concat(stop.lineas);
+                    this.stops[stop.id].lines = this.stops[stop.id].lines.concat(stop.lines);
                 }
                 // Add the stop to the list
                 else{

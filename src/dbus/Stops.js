@@ -13,7 +13,7 @@ class Stops{
                 let paradas = [];
                 for(let i=0;i<paradaInfo.length;i++){
                     let currentStop = paradaInfo[i];
-                    paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], linea: linea.num});
+                    paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], lineas: [linea.num]});
                 }
                 callback(paradas);
             });
