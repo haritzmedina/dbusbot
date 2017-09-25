@@ -1,14 +1,18 @@
 const builder = require('botbuilder');
+const UserDataModel = require('../UserDataModel');
 
 class MainDialog{
 
     constructor(bot){
         this.bot = bot;
+        this.userDataModel = new UserDataModel();
     }
 
     init(){
         this.bot.dialog('/main', [
             (session)=>{
+                // Check if data model need to be updated
+                this.userDataModel.migrateDataModel(session);
                 if(session.userData.initialized){
                     this.mainMessage(session);
                 }

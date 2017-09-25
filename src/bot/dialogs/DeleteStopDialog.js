@@ -1,4 +1,5 @@
 const builder = require('botbuilder');
+const DialogUtils = require("./DialogUtils");
 
 class DeleteStopDialog{
     constructor(bot){
@@ -15,29 +16,24 @@ class DeleteStopDialog{
                     session.beginDialog('/main');
                 }
                 else{
-                    let stopsObject = {};
                     if(stops.length>0){
-                        for(let i=0;i<stops.length;i++){
-                            let stop = stops[i];
-                            stopsObject[stop.parada.name+' [L'+stop.linea.num+']'] = '';
-                        }
-                        builder.Prompts.choice(session, "Que parada quieres eliminar?", stopsObject, {listStyle: builder.ListStyle.button});
+                        let stopsObject = DialogUtils.retrieveStopsObject(stops);
+                        session.dialogData.matchableStops = stops;
+                        builder.Prompts.choice(session, 'Que parada quieres eliminar?', stopsObject, {listStyle: builder.ListStyle.button});
                     }
                 }
             },
-            (session, results) => {
+            (session, result) => {
                 let stops = session.userData.favs;
                 let index = -1;
-                for(let i=0;i<stops.length;i++){
-                    let stop = stops[i];
-                    let userStopString = stop.parada.name+' [L'+stop.linea.num+']';
-                    if(userStopString===results.response.entity){
+                for(let i=0;i<session.dialogData.matchableStops.length;i++){
+                    if(DialogUtils.stopNameForUser(session.dialogData.matchableStops[i]) === result.response.entity){
                         index = i;
                     }
                 }
                 if(index!==-1){
-                    session.send('Se ha eliminado '+results.response.entity+' de favoritos.');
                     stops.splice(index, 1);
+                    session.send('Se ha eliminado '+result.response.entity+' de favoritos.');
                     session.endDialog();
                     session.beginDialog('/main');
                 }
