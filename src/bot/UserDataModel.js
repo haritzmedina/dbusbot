@@ -9,11 +9,13 @@ class UserDataModel{
             'operation': (session)=>{
                 console.log('Migrating to 0.0.3');
                 let favs = session.userData.favs;
-                let transFavs = [];
-                for(let i=0;i<favs.length;i++){
-                    transFavs.push(this.stopsManager.stops[favs[i].parada.id]);
+                if(favs){
+                    let transFavs = [];
+                    for(let i=0;i<favs.length;i++){
+                        transFavs.push(this.stopsManager.stops[favs[i].parada.id]);
+                    }
+                    session.userData.favs = transFavs;
                 }
-                session.userData.favs = transFavs;
                 session.userData.version = '0.0.3';
             }
         }]
