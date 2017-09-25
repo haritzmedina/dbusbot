@@ -7,15 +7,18 @@ const ArrivalsDialog = require('./dialogs/ArrivalsDialog');
 const DeleteStopDialog = require('./dialogs/DeleteStopDialog');
 const DeleteUserDataDialog = require('./dialogs/DeleteUserDataDialog');
 
+const StopsManager = require('../dbus/StopsManager');
+
 class DBusBot{
     constructor(){
-
+        this.stopsManager = null;
     }
 
     init(){
         this.initServer();
         this.initBot();
         this.initRecognizer();
+        this.initDbusServices();
         this.initDialogs();
     }
 
@@ -30,8 +33,6 @@ class DBusBot{
     }
 
     initBot(){
-        console.log(process.env.APP_ID);
-        console.log(process.env.APP_PASSWORD);
         // Create chat bot
         this.connector = new builder.ChatConnector({
             appId: process.env.APP_ID,
@@ -65,6 +66,11 @@ class DBusBot{
                 this.dialogs[key].init();
             }
         }
+    }
+
+    initDbusServices() {
+        this.stopsManager = new StopsManager();
+        this.stopsManager.init();
     }
 }
 

@@ -1,13 +1,12 @@
 const builder = require('botbuilder');
 const Arrivals = require('../../dbus/Arrivals');
 const ExampleStops = require('../../dbus/ExampleStops');
-const StopsManager = require('../../dbus/StopsManager');
+const DialogUtils = require('./DialogUtils');
 
 class ArrivalsDialog{
     constructor(bot){
         this.bot = bot;
-        this.stopsManager = new StopsManager();
-        this.stopsManager.init();
+        this.stopsManager = global.dBusBot.stopsManager;
     }
 
     init(){
@@ -18,18 +17,13 @@ class ArrivalsDialog{
                 if(typeof stops === 'undefined' || stops.length===0){
                     stops = ExampleStops;
                 }
-                let stopsObject = [];
                 if(stops.length>0){
-                    for(let i=0;i<stops.length;i++){
-                        let stop = stops[i];
-                        stopsObject.push(stop.name+' [L'+stop.lines[0]+']');
-                    }
-                    let message = this.createChoiceCardMessage(session, stopsObject, "Que parada quieres?");
+                    let stopsObject = DialogUtils.retrieveStopsObject(stops);
+                    let message = DialogUtils.createChoiceCardMessage(session, stopsObject, "Elige una de tus paradas favoritas o dime cualquier otra.");
                     builder.Prompts.text(session, message);
                 }
             },
             (session, results, next) => {
-                console.log('Has elegido ' + results.response);
                 // Load fav stops
                 let favStops = session.userData.favs;
                 if(typeof favStops === 'undefined' || favStops.length===0){
@@ -38,10 +32,10 @@ class ArrivalsDialog{
                 console.log('Fav stops '+favStops.length);
                 // Search in favourite
                 let resultStops = this.retrieveStopsContainingText(favStops, results.response);
-                console.log('Fav stops '+this.stopsManager.stopsArray.length);
                 // Search in all stops
                 if(resultStops.length === 0){
                     // Check in all stops
+                    console.log('All stops '+this.stopsManager.stopsArray.length);
                     resultStops = this.retrieveStopsContainingText(this.stopsManager.stopsArray, results.response);
                 }
                 // If there is a match
@@ -53,10 +47,10 @@ class ArrivalsDialog{
                     }
                     // Else, ask which of the possibles is the correct one
                     else{
-                        let stopsObject = this.retrieveStopsObject(resultStops);
+                        let stopsObject = DialogUtils.retrieveStopsObject(resultStops);
                         // Save possible options to verify the result
                         session.dialogData.matchableStops = resultStops;
-                        builder.Prompts.choice(session, "Que parada quieres?", stopsObject, {listStyle: builder.ListStyle.button});
+                        builder.Prompts.choice(session, "¿A qué parada te refieres?", stopsObject, {listStyle: builder.ListStyle.button});
                     }
                 }
                 // If results is 0 finish (TODO change this behaviour)
@@ -73,10 +67,9 @@ class ArrivalsDialog{
                     stopToCheck = session.dialogData.stopToCheck;
                 }
                 else{
-                    console.log('Hey');
                     // Search stops which match
                     for(let i=0; i<session.dialogData.matchableStops.length;i++){
-                        if(this.stopNameForUser(session.dialogData.matchableStops[i]) === results.response.entity){
+                        if(DialogUtils.stopNameForUser(session.dialogData.matchableStops[i]) === results.response.entity){
                             stopToCheck = session.dialogData.matchableStops[i];
                         }
                     }
@@ -99,36 +92,14 @@ class ArrivalsDialog{
         ]);
     }
 
-    retrieveStopsObject(stops){
-        let stopsObject = [];
-        for(let i=0;i<stops.length;i++){
-            let stop = stops[i];
-            stopsObject.push(this.stopNameForUser(stop));
-        }
-        return stopsObject;
-    }
-
     retrieveStopsContainingText(stops, response) {
         let matchedStops = [];
         for(let i=0;i<stops.length;i++){
-            if(this.stopNameForUser(stops[i]).includes(response)){
+            if(DialogUtils.stopNameForUser(stops[i]).toLowerCase().includes(response.toLowerCase())){
                 matchedStops.push(stops[i]);
             }
         }
         return matchedStops;
-    }
-
-    createChoiceCardMessage(session, choiceArray, messageText){
-        let card = new builder.ThumbnailCard(session)
-            .text(messageText)
-            .buttons(choiceArray.map(choice => new builder.CardAction.imBack(session, choice, choice)));
-        let message = new builder.Message(session)
-            .addAttachment(card);
-        return message
-    }
-
-    stopNameForUser(stop){
-        return stop.name+' [L'+stop.lines[0]+']'; // TODO Show all the lines
     }
 }
 

@@ -1,6 +1,6 @@
 module.exports = ()=>{
     // Initialize bot
     const DBusBot = require('./bot/DBusBot');
-    let dBusBot = new DBusBot();
-    dBusBot.init();
+    global.dBusBot = new DBusBot();
+    global.dBusBot.init();
 };
