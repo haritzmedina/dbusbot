@@ -7,7 +7,7 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "botbuilder": "^3.9.1",
+    "botbuilder": "^3.10.1",
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^4.0.0",
     "querystring": "latest",
