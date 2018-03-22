@@ -51,18 +51,22 @@ class StopsManager{
     }
 
     requestStops(linea, callback){
-        request.get(linea.enlace, {}, function(error, response, xml){
-            parseString(xml, (err, result)=>{
-                let paradas = [];
-                if(result && result.markers && result.markers.marker){
-                    let paradaInfo = result.markers.marker;
-                    for(let i=0;i<paradaInfo.length;i++){
-                        let currentStop = paradaInfo[i];
-                        paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], lines: [linea.num]});
+        request.get(linea.enlace, {strictSSL: false}, function(error, response, xml){
+            if (error) {
+                console.log(error)
+            } else {
+                parseString(xml, (err, result)=>{
+                    let paradas = [];
+                    if(result && result.markers && result.markers.marker){
+                        let paradaInfo = result.markers.marker;
+                        for(let i=0;i<paradaInfo.length;i++){
+                            let currentStop = paradaInfo[i];
+                            paradas.push({name: currentStop.title_es[0], id: currentStop.parada_id[0], lines: [linea.num]});
+                        }
                     }
-                }
-                callback(paradas);
-            });
+                    callback(paradas);
+                });
+            }
         });
     }
 

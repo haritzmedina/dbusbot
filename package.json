@@ -7,12 +7,12 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "botbuilder": "^3.10.1",
+    "botbuilder": "^3.13.1",
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^4.0.0",
     "querystring": "latest",
-    "request": "^2.82.0",
-    "restify": "^6.0.1",
+    "request": "^2.83.0",
+    "restify": "^6.3.4",
     "xml2js": "^0.4.19"
   },
   "engines": {
